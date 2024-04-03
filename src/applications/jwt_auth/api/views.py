@@ -1,11 +1,15 @@
-from dj_rest_auth.views import LoginView, UserDetailsView
+from typing import cast
+
 from django.conf import settings
-from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
+
+from dj_rest_auth.views import LoginView, UserDetailsView
+from drf_spectacular.utils import extend_schema
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from applications.jwt_auth.api.serializers import TokenSerializer
+
 
 AUTH_TAG = 'Авторизация'
 
@@ -15,7 +19,7 @@ class CustomLoginView(LoginView):
     def login(self):
         self.user = self.serializer.validated_data['user']
 
-        self.token: RefreshToken = RefreshToken.for_user(self.user)
+        self.token = cast(RefreshToken, RefreshToken.for_user(self.user))
 
         if getattr(settings, 'REST_SESSION_LOGIN', True):
             self.process_login()

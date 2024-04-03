@@ -1,7 +1,9 @@
 from rest_framework.routers import SimpleRouter
+
 from rest_framework_nested.routers import NestedSimpleRouter
 
 from applications.events.api import views
+
 
 router = SimpleRouter()
 router.register(r'event', views.EventViewSet)

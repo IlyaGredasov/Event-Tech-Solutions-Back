@@ -1,7 +1,8 @@
-from drf_spectacular.utils import extend_schema
 from rest_framework import mixins, status
 from rest_framework.request import Request
 from rest_framework.viewsets import GenericViewSet
+
+from drf_spectacular.utils import extend_schema
 
 from applications.users.api.serializers import RetrieveUserSerializer
 from applications.users.models import User

@@ -1,13 +1,14 @@
-from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets, mixins, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from drf_spectacular.utils import extend_schema
+
 from applications.api.exceptions import BaseServiceException, handle_service_exception
 from applications.api.views import CustomUpdateModelMixin
-from applications.events.api.serializers import RetrieveEventSerializer, RetrieveEventParticipantSerializer, \
-    UpdateEventParticipantSerializer
+from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
+                                                 UpdateEventParticipantSerializer)
 from applications.events.models import Event, EventParticipant
 from applications.events.services import create_event_participant, update_event_participant
 
