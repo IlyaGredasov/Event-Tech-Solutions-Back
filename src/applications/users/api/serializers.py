@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class RetrieveUserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    username = serializers.CharField()
+    username = serializers.CharField(read_only=True)
     first_name = serializers.CharField()
     last_name = serializers.CharField()
 
