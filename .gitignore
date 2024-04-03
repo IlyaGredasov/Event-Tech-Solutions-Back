@@ -1,0 +1,17 @@
+venv
+.idea
+*.sqlite3
+__pycache__
+.env
+.env.local
+.DS_Store
+
+docs/build/doctrees/
+src/media
+src/static
+src/system/settings/local.py
+**/*.egg-info
+**/build/
+
+/log/*
+!/log/.gitkeep

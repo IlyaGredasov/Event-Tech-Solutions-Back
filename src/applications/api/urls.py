@@ -1,0 +1,7 @@
+from django.urls import path, include
+
+urlpatterns = [
+    path('users/', include('applications.users.api.urls')),
+    path('events/', include('applications.events.api.urls')),
+    path('auth/', include('applications.jwt_auth.api.urls')),
+]
