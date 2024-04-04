@@ -6,6 +6,7 @@ class RetrieveUserSerializer(serializers.Serializer):
     username = serializers.CharField(read_only=True)
     first_name = serializers.CharField()
     last_name = serializers.CharField()
+    avatar = serializers.ImageField()
 
 
 class RetrieveRelatedUserSerializer(serializers.Serializer):
