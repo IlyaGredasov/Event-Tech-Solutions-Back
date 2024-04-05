@@ -1,9 +1,12 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from drf_spectacular.utils import extend_schema
+
+from django_filters import rest_framework as filters
 
 from applications.api.exceptions import BaseServiceException, handle_service_exception
 from applications.api.views import CustomUpdateModelMixin
@@ -12,17 +15,25 @@ from applications.events.api.serializers import (RetrieveEventParticipantSeriali
 from applications.events.models import Event, EventParticipant
 from applications.events.services import create_event_participant, update_event_participant
 
-
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
+
+
+class EventFilter(filters.FilterSet):
+    time_start__gte = filters.DateTimeFilter(field_name='start_time', lookup_expr='gte')
+    time_start__lte = filters.DateTimeFilter(field_name='start_time', lookup_expr='lte')
+    class Meta:
+        model = Event
+        fields = ['type', 'time_start']
 
 
 class EventViewSet(mixins.ListModelMixin,
                    mixins.RetrieveModelMixin,
                    viewsets.GenericViewSet):
-
     serializer_class = RetrieveEventSerializer
     queryset = Event.objects.all()
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = EventFilter
 
     def get_queryset(self):
         self.queryset = self.queryset.filter_visible_for(
@@ -41,7 +52,7 @@ class EventViewSet(mixins.ListModelMixin,
         tags=[EVENTS_TAG],
     )
     def retrieve(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
     @extend_schema(
         responses={

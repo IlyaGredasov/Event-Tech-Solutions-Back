@@ -10,8 +10,27 @@ class User(AbstractUser):
         unique=True,
         validators=[username_validator],
     )
-    avatar = models.ImageField(null=True)
-
-
-
-
+    job = models.CharField(
+        max_length=64,
+        null=True
+    )
+    avatar = models.ImageField(
+        null=True
+    )
+    vk = models.CharField(
+        max_length=64,
+        null=True
+    )
+    telegram = models.CharField(
+        max_length=64,
+        null=True
+    )
+    mail = models.CharField(
+        max_length=64,
+        null=True
+    )
+    phone_number = models.CharField(
+        max_length=12,
+        null=True,
+        unique=True
+    )

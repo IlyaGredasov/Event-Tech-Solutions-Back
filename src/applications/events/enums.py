@@ -6,5 +6,3 @@ class EventParticipantState(models.IntegerChoices):
     ARRIVED = 1
     SKIPPED = 2
     CANCELED = 3
-
-

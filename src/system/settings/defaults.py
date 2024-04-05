@@ -13,17 +13,15 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from django.contrib.staticfiles.handlers import StaticFilesHandler
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
 
 SECRET_KEY = os.environ['SECRET_KEY']
 
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -36,12 +34,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework.authtoken',
+    'django_filters',
     'drf_spectacular',
 
-    'applications.api',
-    'applications.users',
-    'applications.events',
-    'applications.jwt_auth',
+    'applications.api.apps.ApiConfig',
+    'applications.users.apps.UsersConfig',
+    'applications.events.apps.EventsConfig',
+    'applications.jwt_auth.apps.AuthConfig',
+    'applications.notifications.apps.NotificationsConfig',
 ]
 
 MIDDLEWARE = [
@@ -74,14 +74,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'system.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -100,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -111,7 +109,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
-
 
 LOGGING = {
     'version': 1,
@@ -173,3 +170,9 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
 }
+
+STATIC_ROOT = 'src/static'
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = 'src/media'
