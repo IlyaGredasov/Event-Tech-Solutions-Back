@@ -10,20 +10,27 @@ class EventQuerySet(models.QuerySet):
         return self.filter(
             Q(author=actor) |
             (
-                Q(eventparticipant__user=actor) &
-                Q(eventparticipant__state=EventParticipantState.ARRIVED)
+                    Q(eventparticipant__user=actor) &
+                    Q(eventparticipant__state=EventParticipantState.ARRIVED)
             ) |
             Q(managers=actor)
         )
+
+
+class EventType(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Event Type: {self.name} {self.id}"
 
 
 class Event(models.Model):
     objects = EventQuerySet.as_manager()
     name = models.CharField(max_length=255)
     type = models.ForeignKey(
-        'EventType',
+        EventType,
         on_delete=models.PROTECT,
-        related_name='events',
+        related_name='typed_events',
     )
     place = models.CharField(max_length=255)
     time_start = models.DateTimeField()
@@ -51,6 +58,7 @@ class Event(models.Model):
         through='EventParticipant',
         related_name='events',
     )
+    image = models.ImageField(upload_to='events/%Y/%m/%d', null=True, blank=True)
 
     def __str__(self):
         return f'Event {self.id} {self.name} | {self.type}'
@@ -58,7 +66,7 @@ class Event(models.Model):
 
 class EventParticipant(models.Model):
     event = models.ForeignKey(
-        'Event',
+        Event,
         on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
@@ -74,12 +82,6 @@ class EventParticipant(models.Model):
     def __str__(self):
         return f'EventParticipant {self.id} | {self.user} | {self.event}'
 
-
-class EventType(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return f'EventType {self.id} {self.name}'
 
 class EventComment(models.Model):
     user = models.ForeignKey(
