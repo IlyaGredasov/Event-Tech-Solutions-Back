@@ -80,3 +80,23 @@ class EventType(models.Model):
 
     def __str__(self):
         return f'EventType {self.id} {self.name}'
+
+class EventComment(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='User'
+    )
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        verbose_name='Event',
+        related_name='Comments',
+    )
+    comment = models.TextField(verbose_name='Comment')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Comment',
+        verbose_name_plural = 'Comments'
+
+    def __str__(self):
+        return f'Comment from {self.user} to event {self.event}'
