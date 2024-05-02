@@ -18,3 +18,4 @@ rpds-py==0.18.0
 ruff==0.3.5
 sqlparse==0.4.4
 uritemplate==4.1.1
+django-cors-headers==4.3.1
