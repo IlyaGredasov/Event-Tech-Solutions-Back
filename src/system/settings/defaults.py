@@ -36,12 +36,41 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_filters',
     'drf_spectacular',
+    'corsheaders',
 
     'applications.api.apps.ApiConfig',
     'applications.users.apps.UsersConfig',
     'applications.events.apps.EventsConfig',
     'applications.jwt_auth.apps.AuthConfig',
     'applications.notifications.apps.NotificationsConfig',
+]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_PREFLIGHT_MAX_AGE = 7200
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'x-timezone',
+    'cache-control',
+    'pragma',
+    'expires',
+    'skip-error-interceptor'
 ]
 
 MIDDLEWARE = [
