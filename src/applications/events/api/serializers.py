@@ -84,3 +84,7 @@ class RetrieveEventCommentSerializer(serializers.Serializer):
     event = RetrieveShortEventSerializer()
     comment = serializers.CharField(max_length=255)
     created_at = serializers.DateTimeField()
+
+
+class CreateEventCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField(max_length=255)

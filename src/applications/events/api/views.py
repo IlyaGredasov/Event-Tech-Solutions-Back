@@ -10,9 +10,10 @@ from django_filters import rest_framework as filters
 from applications.api.exceptions import BaseServiceException, handle_service_exception
 from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
-                                                 UpdateEventParticipantSerializer, RetrieveEventCommentSerializer)
+                                                 UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
+                                                 CreateEventCommentSerializer)
 from applications.events.models import Event, EventParticipant, EventComment
-from applications.events.services import create_event_participant, update_event_participant
+from applications.events.services import create_event_participant, update_event_participant, create_event_comment
 
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
@@ -185,3 +186,22 @@ class EventCommentViewSet(mixins.ListModelMixin,
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        responses={
+            status.HTTP_201_CREATED: RetrieveEventCommentSerializer(),
+        },
+        tags=[EVENT_COMMENT_TAG],
+        request=CreateEventCommentSerializer,
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = CreateEventCommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            event_comment = create_event_comment(self.event, request.user, **serializer.validated_data)
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(event_comment).data,
+            status=status.HTTP_201_CREATED,
+        )

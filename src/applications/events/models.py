@@ -1,8 +1,10 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 
 from applications.events.enums import EventParticipantState
 from applications.users.models import User
+
+
 
 
 class EventQuerySet(models.QuerySet):
@@ -10,8 +12,7 @@ class EventQuerySet(models.QuerySet):
         return self.filter(
             Q(author=actor) |
             (
-                    Q(eventparticipant__user=actor) &
-                    Q(eventparticipant__state=EventParticipantState.ARRIVED)
+                Exists(EventParticipant.objects.filter(event=OuterRef('id'), state=EventParticipantState.ARRIVED))
             ) |
             Q(managers=actor)
         )
