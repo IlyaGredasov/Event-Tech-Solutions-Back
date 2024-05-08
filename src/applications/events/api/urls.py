@@ -11,6 +11,6 @@ router.register(r'event', views.EventViewSet)
 
 events_router = NestedSimpleRouter(router, r'event', lookup='event')
 events_router.register(r'participants', views.EventParticipantViewSet, basename='event-participants')
-
+events_router.register(r'comments', views.EventCommentViewSet, basename='event-comments')
 
 urlpatterns = router.urls + events_router.urls

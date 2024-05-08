@@ -1,8 +1,10 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 
 from applications.events.enums import EventParticipantState
 from applications.users.models import User
+
+
 
 
 class EventQuerySet(models.QuerySet):
@@ -10,8 +12,7 @@ class EventQuerySet(models.QuerySet):
         return self.filter(
             Q(author=actor) |
             (
-                    Q(eventparticipant__user=actor) &
-                    Q(eventparticipant__state=EventParticipantState.ARRIVED)
+                Exists(EventParticipant.objects.filter(event=OuterRef('id'), state=EventParticipantState.ARRIVED))
             ) |
             Q(managers=actor)
         )
@@ -59,6 +60,8 @@ class Event(models.Model):
         related_name='events',
     )
     image = models.ImageField(upload_to='events/%Y/%m/%d', null=True, blank=True)
+    is_online = models.BooleanField(default=False)
+    description = models.TextField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return f'Event {self.id} {self.name} | {self.type}'
@@ -85,20 +88,18 @@ class EventParticipant(models.Model):
 
 class EventComment(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name='User'
+        User, on_delete=models.CASCADE
     )
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        verbose_name='Event',
-        related_name='Comments',
     )
-    comment = models.TextField(verbose_name='Comment')
+    comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Comment',
-        verbose_name_plural = 'Comments'
+        verbose_name_plural = 'Event comments'
 
     def __str__(self):
-        return f'Comment from {self.user} to event {self.event}'
+        return f'Comment {self.user} {self.event}'

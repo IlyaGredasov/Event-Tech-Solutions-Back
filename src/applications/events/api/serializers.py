@@ -16,7 +16,7 @@ class RetrieveEventTypeSerializer(serializers.Serializer):
 
 class RetrieveEventParticipantSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    state = serializers.CharField()
+    state = serializers.IntegerField()
     user = RetrieveRelatedUserSerializer(read_only=True)
 
 
@@ -33,7 +33,7 @@ class RetrieveShortEventSerializer(serializers.Serializer):
     time_start = serializers.DateTimeField()
     time_end = serializers.DateTimeField()
     image = serializers.ImageField()
-    type = RetrieveEventTypeSerializer(read_only=True, many=True)
+    type = RetrieveEventTypeSerializer(read_only=True)
 
 
 class RetrieveEventSerializer(serializers.Serializer):
@@ -56,6 +56,8 @@ class RetrieveEventSerializer(serializers.Serializer):
     )
     participants = RetrieveRelatedUserSerializer(many=True, read_only=True)
     image = serializers.ImageField()
+    is_online = serializers.BooleanField()
+    description = serializers.CharField(max_length=255)
 
     @extend_schema_field(OpenApiTypes.INT)
     def get_user_state(self, obj):
@@ -74,3 +76,15 @@ class RetrieveEventSerializer(serializers.Serializer):
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_upcoming(self, obj):
         return obj.time_end.timestamp() >= datetime.datetime.now().timestamp()
+
+
+class RetrieveEventCommentSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    user = RetrieveRelatedUserSerializer()
+    event = RetrieveShortEventSerializer()
+    comment = serializers.CharField(max_length=255)
+    created_at = serializers.DateTimeField()
+
+
+class CreateEventCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField(max_length=255)
