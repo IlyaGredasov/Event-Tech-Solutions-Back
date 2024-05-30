@@ -30,6 +30,28 @@ class RetrieveRelatedUserSerializer(serializers.Serializer):
     avatar = serializers.ImageField()
 
 
+class CreateUserSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=255)
+    job = serializers.CharField(max_length=255)
+    avatar = serializers.ImageField(required=False)
+    vk = serializers.CharField(max_length=255, required=False)
+    telegram = serializers.CharField(max_length=255, required=False)
+    mail = serializers.CharField(max_length=255, required=False)
+    phone_number = serializers.CharField(max_length=255, required=False)
+
+
+class UpdateUserSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=255, required=False)
+    password = serializers.CharField(max_length=255, required=False)
+    job = serializers.CharField(max_length=255, required=False)
+    avatar = serializers.ImageField(required=False)
+    vk = serializers.CharField(max_length=255, required=False)
+    telegram = serializers.CharField(max_length=255, required=False)
+    mail = serializers.CharField(max_length=255, required=False)
+    phone_number = serializers.CharField(max_length=255, required=False)
+
+
 class UserNotificationSerializer(serializers.Serializer):
     state = serializers.ChoiceField(choices=NotificationState.choices)
     time = serializers.DateTimeField()

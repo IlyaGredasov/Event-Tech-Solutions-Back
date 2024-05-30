@@ -5,8 +5,6 @@ from applications.events.enums import EventParticipantState
 from applications.users.models import User
 
 
-
-
 class EventQuerySet(models.QuerySet):
     def filter_visible_for(self, actor: User):
         return self.filter(

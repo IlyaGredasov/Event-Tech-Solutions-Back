@@ -1,7 +1,7 @@
 from applications.api.exceptions import BaseServiceException, PermissionDeniedException
-from applications.api.permissions import is_manager
+from applications.api.permissions import is_manager, is_admin
 from applications.events.enums import EventParticipantState
-from applications.events.models import Event, EventParticipant, EventComment
+from applications.events.models import Event, EventParticipant, EventComment, EventType
 from applications.users.models import User
 
 
@@ -44,3 +44,34 @@ def create_event_comment(event: Event,
         user=actor,
         comment=comment,
     )
+
+
+def create_event(actor: User, **kwargs) -> Event:
+    if not is_manager(actor) and not is_admin(actor):
+        raise PermissionDeniedException()
+    return Event.objects.create(
+        author=actor,
+        name=kwargs.get('name'),
+        type=kwargs.get('event_type'),
+        place=kwargs.get('place'),
+        time_start=kwargs.get('time_start'),
+        time_end=kwargs.get('time_end'),
+        speaker=kwargs.get('speaker'),
+        reference=kwargs.get('reference'),
+        reference_video=kwargs.get('reference_video'),
+        image=kwargs.get('image'),
+        is_online=kwargs.get('is_online'),
+        description=kwargs.get('description'),
+    )
+
+
+def update_event(event: Event, actor: User, **kwargs) -> Event:
+    if event.author != actor and not is_manager(actor) and not is_admin(actor):
+        raise PermissionDeniedException()
+    editable_attrs = ['name', 'event_type', 'place', 'time_start', 'time_end', 'speaker',
+                      'reference', 'reference_video', 'image', 'is_online', 'description']
+    for attr in kwargs:
+        if attr in editable_attrs:
+            setattr(event, attr, kwargs.get(attr))
+    event.save()
+    return event

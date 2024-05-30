@@ -11,9 +11,11 @@ from applications.api.exceptions import BaseServiceException, handle_service_exc
 from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
                                                  UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
-                                                 CreateEventCommentSerializer)
+                                                 CreateEventCommentSerializer, CreateEventSerializer,
+                                                 UpdateEventSerializer)
 from applications.events.models import Event, EventParticipant, EventComment
-from applications.events.services import create_event_participant, update_event_participant, create_event_comment
+from applications.events.services import create_event_participant, update_event_participant, create_event_comment, \
+    create_event, update_event
 
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
@@ -64,6 +66,50 @@ class EventViewSet(mixins.ListModelMixin,
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        responses={
+            status.HTTP_201_CREATED: RetrieveEventSerializer(),
+        },
+        tags=[EVENTS_TAG],
+        request=CreateEventSerializer,
+    )
+    def create(self, request: Request, *args, **kwargs):
+        serializer = CreateEventSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            event = create_event(request.user, **serializer.validated_data)
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(event).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_201_CREATED: RetrieveEventSerializer(),
+        },
+        tags=[EVENTS_TAG],
+        request=UpdateEventSerializer,
+    )
+    def partial_update(self, request: Request, *args, **kwargs):
+        serializer = UpdateEventSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            event = update_event(
+                self.get_object(),
+                request.user,
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(event).data,
+            status=status.HTTP_200_OK,
+        )
 
 
 class EventParticipantViewSet(mixins.ListModelMixin,

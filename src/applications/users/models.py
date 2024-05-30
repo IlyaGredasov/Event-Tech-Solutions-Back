@@ -35,4 +35,8 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
-    phone_number = PhoneNumberField(unique=True, null=True, blank=True)
+    phone_number = PhoneNumberField(
+        unique=True,
+        null=True,
+        blank=True
+    )

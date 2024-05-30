@@ -5,8 +5,9 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from applications.events.enums import EventParticipantState
-from applications.events.models import EventParticipant
+from applications.events.models import EventParticipant, EventType
 from applications.users.api.serializers import RetrieveRelatedUserSerializer
+from applications.users.models import User
 
 
 class RetrieveEventTypeSerializer(serializers.Serializer):
@@ -76,6 +77,44 @@ class RetrieveEventSerializer(serializers.Serializer):
     @extend_schema_field(OpenApiTypes.BOOL)
     def get_is_upcoming(self, obj):
         return obj.time_end.timestamp() >= datetime.datetime.now().timestamp()
+
+
+class CreateEventSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+    event_type = serializers.PrimaryKeyRelatedField(
+        queryset=EventType.objects.all(),
+    )
+    place = serializers.CharField(max_length=255)
+    time_start = serializers.DateTimeField()
+    time_end = serializers.DateTimeField()
+    speaker = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+    )
+    reference = serializers.CharField(max_length=255)
+    reference_video = serializers.CharField(max_length=255)
+    is_online = serializers.BooleanField(default=False)
+    description = serializers.CharField(max_length=255)
+    image = serializers.ImageField(required=False)
+
+
+class UpdateEventSerializer(serializers.Serializer):
+    name = serializers.CharField(required=False, max_length=255)
+    event_type = serializers.PrimaryKeyRelatedField(
+        queryset=EventType.objects.all(),
+        required=False,
+    )
+    place = serializers.CharField(max_length=255, required=False)
+    time_start = serializers.DateTimeField(required=False)
+    time_end = serializers.DateTimeField(required=False)
+    speaker = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=False,
+    )
+    reference = serializers.CharField(max_length=255, required=False)
+    reference_video = serializers.CharField(max_length=255, required=False)
+    is_online = serializers.BooleanField(default=False, required=False)
+    description = serializers.CharField(max_length=255, required=False)
+    image = serializers.ImageField(required=False)
 
 
 class RetrieveEventCommentSerializer(serializers.Serializer):
