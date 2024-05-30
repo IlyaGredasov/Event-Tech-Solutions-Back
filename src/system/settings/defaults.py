@@ -202,6 +202,10 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
 }
 
+SPECTACULAR_SETTINGS = {
+    'COMPONENT_SPLIT_REQUEST': True
+}
+
 STATIC_ROOT = 'src/static'
 
 MEDIA_URL = '/media/'
