@@ -1,4 +1,5 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -12,10 +13,10 @@ from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
                                                  UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
                                                  CreateEventCommentSerializer, CreateEventSerializer,
-                                                 UpdateEventSerializer)
+                                                 UpdateEventSerializer, UpdateEventManagersSerializer)
 from applications.events.models import Event, EventParticipant, EventComment
 from applications.events.services import create_event_participant, update_event_participant, create_event_comment, \
-    create_event, update_event
+    create_event, update_event, add_managers, delete_managers
 
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
@@ -108,6 +109,58 @@ class EventViewSet(mixins.ListModelMixin,
             return handle_service_exception(e)
         return Response(
             data=self.get_serializer(event).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventSerializer,
+        },
+        tags=[EVENTS_TAG],
+        request=UpdateEventManagersSerializer,
+    )
+    @action(detail=True, methods=['PATCH'], url_path='add_managers')
+    def add_managers(self, request: Request, *args, **kwargs):
+        serializer = UpdateEventManagersSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = add_managers(
+                request.user,
+                self.get_object(),
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventSerializer,
+        },
+        tags=[EVENTS_TAG],
+        request=UpdateEventManagersSerializer,
+    )
+    @action(detail=True, methods=['PATCH'], url_path='delete_managers')
+    def delete_managers(self, request: Request, *args, **kwargs):
+        serializer = UpdateEventManagersSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = delete_managers(
+                request.user,
+                self.get_object(),
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(user).data,
             status=status.HTTP_200_OK,
         )
 

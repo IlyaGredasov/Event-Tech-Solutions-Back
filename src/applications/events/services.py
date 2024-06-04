@@ -1,7 +1,7 @@
 from applications.api.exceptions import BaseServiceException, PermissionDeniedException
 from applications.api.permissions import is_manager, is_admin
 from applications.events.enums import EventParticipantState
-from applications.events.models import Event, EventParticipant, EventComment, EventType
+from applications.events.models import Event, EventParticipant, EventComment
 from applications.users.models import User
 
 
@@ -73,5 +73,31 @@ def update_event(event: Event, actor: User, **kwargs) -> Event:
     for attr in kwargs:
         if attr in editable_attrs:
             setattr(event, attr, kwargs.get(attr))
+    event.save()
+    return event
+
+
+def add_managers(actor: User,
+                 event: Event,
+                 **kwargs) -> Event:
+    if not is_admin(actor):
+        raise PermissionDeniedException()
+    if not all(is_manager(user) for user in kwargs.get('managers')):
+        raise BaseServiceException("Не все пользователи в запросе являются менеджерами")
+    for user in kwargs.get('managers'):
+        event.managers.add(user)
+    event.save()
+    return event
+
+
+def delete_managers(actor: User,
+                    event: Event,
+                    **kwargs) -> Event:
+    if not is_admin(actor):
+        raise PermissionDeniedException()
+    if not all(is_manager(user) for user in kwargs.get('managers')):
+        raise BaseServiceException("Не все пользователи в запросе являются менеджерами")
+    for user in kwargs.get('managers'):
+        event.managers.remove(user)
     event.save()
     return event
