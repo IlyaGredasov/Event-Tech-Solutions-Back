@@ -17,6 +17,7 @@ class User(AbstractUser):
         blank=True
     )
     avatar = models.ImageField(
+        upload_to='users/%Y/%m/%d',
         null=True,
         blank=True
     )

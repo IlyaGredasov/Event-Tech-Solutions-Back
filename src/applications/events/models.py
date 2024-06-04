@@ -38,14 +38,17 @@ class Event(models.Model):
         to=User,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name='speaked_events',
     )
-    reference = models.CharField(max_length=255)
-    reference_video = models.CharField(max_length=255)
+    reference = models.CharField(max_length=255, null=True, blank=True)
+    reference_video = models.CharField(max_length=255, null=True, blank=True)
     author = models.ForeignKey(
         to=User,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name='authored_events',
+        blank=True,
     )
     managers = models.ManyToManyField(
         to=User,
@@ -56,6 +59,7 @@ class Event(models.Model):
         to=User,
         through='EventParticipant',
         related_name='events',
+        blank=True,
     )
     image = models.ImageField(upload_to='events/%Y/%m/%d', null=True, blank=True)
     is_online = models.BooleanField(default=False)

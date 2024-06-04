@@ -1,4 +1,6 @@
 from rest_framework import mixins, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -6,9 +8,10 @@ from rest_framework.viewsets import GenericViewSet
 from drf_spectacular.utils import extend_schema
 
 from applications.api.exceptions import BaseServiceException, handle_service_exception
-from applications.users.api.serializers import RetrieveUserSerializer, CreateUserSerializer, UpdateUserSerializer
+from applications.users.api.serializers import RetrieveUserSerializer, CreateUserSerializer, UpdateUserSerializer, \
+    UpdateUserGroupsSerializer
 from applications.users.models import User
-from applications.users.services import create_user, update_user
+from applications.users.services import create_user, update_user, add_user_groups, delete_user_groups
 
 USERS_TAG = 'Пользователи'
 
@@ -40,7 +43,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
 
     @extend_schema(
         responses={
-            status.HTTP_201_CREATED: RetrieveUserSerializer(),
+            status.HTTP_201_CREATED: RetrieveUserSerializer,
         },
         tags=[USERS_TAG],
         request=CreateUserSerializer,
@@ -59,7 +62,7 @@ class UserViewSet(mixins.RetrieveModelMixin,
 
     @extend_schema(
         responses={
-            status.HTTP_201_CREATED: RetrieveUserSerializer(),
+            status.HTTP_200_OK: RetrieveUserSerializer,
         },
         tags=[USERS_TAG],
         request=UpdateUserSerializer,
@@ -71,6 +74,72 @@ class UserViewSet(mixins.RetrieveModelMixin,
         serializer.is_valid(raise_exception=True)
         try:
             user = update_user(
+                self.get_object(),
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "No content",
+        },
+        tags=[USERS_TAG],
+    )
+    def destroy(self, request: Request, *args, **kwargs):
+        user = self.get_object()
+        try:
+            user.delete()
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveUserSerializer,
+        },
+        tags=[USERS_TAG],
+        request=UpdateUserGroupsSerializer,
+    )
+    @action(detail=True, methods=['PATCH'], url_path='add_groups')
+    def add_groups(self, request: Request, *args, **kwargs):
+        serializer = UpdateUserGroupsSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = add_user_groups(
+                request.user,
+                self.get_object(),
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(user).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveUserSerializer,
+        },
+        tags=[USERS_TAG],
+        request=UpdateUserGroupsSerializer,
+    )
+    @action(detail=True, methods=['PATCH'], url_path='delete_groups')
+    def delete_groups(self, request: Request, *args, **kwargs):
+        serializer = UpdateUserGroupsSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            user = delete_user_groups(
+                request.user,
                 self.get_object(),
                 **serializer.validated_data
             )

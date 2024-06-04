@@ -12,10 +12,10 @@ from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
                                                  UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
                                                  CreateEventCommentSerializer, CreateEventSerializer,
-                                                 UpdateEventSerializer)
+                                                 UpdateEventSerializer, UpdateEventCommentSerializer)
 from applications.events.models import Event, EventParticipant, EventComment
 from applications.events.services import create_event_participant, update_event_participant, create_event_comment, \
-    create_event, update_event
+    create_event, update_event, update_event_comment
 
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
@@ -111,6 +111,20 @@ class EventViewSet(mixins.ListModelMixin,
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "No content",
+        },
+        tags=[EVENTS_TAG],
+    )
+    def destroy(self, request: Request, *args, **kwargs):
+        event = self.get_object()
+        try:
+            event.delete()
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EventParticipantViewSet(mixins.ListModelMixin,
                               mixins.RetrieveModelMixin,
@@ -194,6 +208,20 @@ class EventParticipantViewSet(mixins.ListModelMixin,
             status=status.HTTP_200_OK,
         )
 
+    @extend_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "No content",
+        },
+        tags=[EVENT_PARTICIPANTS_TAG],
+    )
+    def destroy(self, request: Request, *args, **kwargs):
+        event_participant = self.get_object()
+        try:
+            event_participant.delete()
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EventCommentViewSet(mixins.ListModelMixin,
                           mixins.RetrieveModelMixin,
@@ -251,3 +279,42 @@ class EventCommentViewSet(mixins.ListModelMixin,
             data=self.get_serializer(event_comment).data,
             status=status.HTTP_201_CREATED,
         )
+
+    @extend_schema(
+        request=UpdateEventCommentSerializer,
+        responses={
+            status.HTTP_200_OK: RetrieveEventCommentSerializer,
+        },
+        tags=[EVENT_COMMENT_TAG],
+    )
+    def partial_update(self, request: Request, *args, **kwargs):
+        serializer = UpdateEventCommentSerializer(
+            data=request.data,
+        )
+        serializer.is_valid(raise_exception=True)
+        try:
+            event_comment = update_event_comment(
+                self.get_object(),
+                request.user,
+                **serializer.validated_data
+            )
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(event_comment).data,
+            status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: "No content",
+        },
+        tags=[EVENT_COMMENT_TAG],
+    )
+    def destroy(self, request: Request, *args, **kwargs):
+        event_comment = self.get_object()
+        try:
+            event_comment.delete()
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(status=status.HTTP_204_NO_CONTENT)

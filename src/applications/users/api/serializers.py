@@ -1,4 +1,6 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
+from rest_framework.relations import PrimaryKeyRelatedField
 
 from applications.notifications.enums import NotificationState
 
@@ -32,8 +34,10 @@ class RetrieveRelatedUserSerializer(serializers.Serializer):
 
 class CreateUserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255)
+    first_name = serializers.CharField(max_length=255)
+    last_name = serializers.CharField(max_length=255)
     password = serializers.CharField(max_length=255)
-    job = serializers.CharField(max_length=255)
+    job = serializers.CharField(max_length=255, required=False)
     avatar = serializers.ImageField(required=False)
     vk = serializers.CharField(max_length=255, required=False)
     telegram = serializers.CharField(max_length=255, required=False)
@@ -43,6 +47,8 @@ class CreateUserSerializer(serializers.Serializer):
 
 class UpdateUserSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255, required=False)
+    first_name = serializers.CharField(max_length=255, required=False)
+    last_name = serializers.CharField(max_length=255, required=False)
     password = serializers.CharField(max_length=255, required=False)
     job = serializers.CharField(max_length=255, required=False)
     avatar = serializers.ImageField(required=False)
@@ -50,6 +56,14 @@ class UpdateUserSerializer(serializers.Serializer):
     telegram = serializers.CharField(max_length=255, required=False)
     mail = serializers.CharField(max_length=255, required=False)
     phone_number = serializers.CharField(max_length=255, required=False)
+
+
+class UpdateUserGroupsSerializer(serializers.Serializer):
+    groups = serializers.ListField(
+        child=PrimaryKeyRelatedField(
+            queryset=Group.objects.all()
+        )
+    )
 
 
 class UserNotificationSerializer(serializers.Serializer):

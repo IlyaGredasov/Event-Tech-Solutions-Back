@@ -89,6 +89,7 @@ class CreateEventSerializer(serializers.Serializer):
     time_end = serializers.DateTimeField()
     speaker = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
+        required=False,
     )
     reference = serializers.CharField(max_length=255)
     reference_video = serializers.CharField(max_length=255)
@@ -115,6 +116,12 @@ class UpdateEventSerializer(serializers.Serializer):
     is_online = serializers.BooleanField(default=False, required=False)
     description = serializers.CharField(max_length=255, required=False)
     image = serializers.ImageField(required=False)
+    managers = serializers.ListField(
+        child=serializers.PrimaryKeyRelatedField(
+            queryset=User.objects.all(),
+        ),
+        required=False
+    )
 
 
 class RetrieveEventCommentSerializer(serializers.Serializer):
@@ -126,4 +133,8 @@ class RetrieveEventCommentSerializer(serializers.Serializer):
 
 
 class CreateEventCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField(max_length=255)
+
+
+class UpdateEventCommentSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=255)
