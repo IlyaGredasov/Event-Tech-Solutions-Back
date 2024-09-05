@@ -1,10 +1,12 @@
 from rest_framework.routers import SimpleRouter
 
-from applications.users.api.views import UserViewSet
+from rest_framework_nested.routers import NestedSimpleRouter
 
+from applications.users.api.views import UserViewSet, UserAchievementViewSet
 
 router = SimpleRouter()
-
 router.register(r'user', UserViewSet)
 
-urlpatterns = router.urls
+user_router = NestedSimpleRouter(router, r'user', lookup='user')
+user_router.register(r'event', UserAchievementViewSet)
+urlpatterns = router.urls + user_router.urls

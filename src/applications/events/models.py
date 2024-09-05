@@ -90,7 +90,8 @@ class EventParticipant(models.Model):
 
 class EventComment(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE
+        User,
+        on_delete=models.CASCADE
     )
     event = models.ForeignKey(
         Event,

@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework.relations import PrimaryKeyRelatedField
 
 from applications.notifications.enums import NotificationState
+from applications.users.models import User
 
 
 class RetrieveGroupSerializer(serializers.Serializer):
@@ -72,3 +73,29 @@ class UserNotificationSerializer(serializers.Serializer):
     event = serializers.CharField()
     user = serializers.CharField()
     description = serializers.CharField()
+
+
+class RetrieveUserAchievementSerializer(serializers.Serializer):
+    from applications.events.api.serializers import RetrieveEventTypeSerializer
+    user = RetrieveRelatedUserSerializer(read_only=True)
+    event_type = RetrieveEventTypeSerializer(read_only=True)
+    score = serializers.IntegerField(default=0)
+    achievement_time = serializers.DateTimeField()
+
+
+class CreateUserAchievementSerializer(serializers.Serializer):
+    from applications.events.models import EventType
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all()
+    )
+    event_type = serializers.PrimaryKeyRelatedField(
+        queryset=EventType.objects.all()
+    )
+
+
+class UpdateUserAchievementSerializer(serializers.Serializer):
+    from applications.events.api.serializers import RetrieveEventTypeSerializer
+    user = RetrieveRelatedUserSerializer(read_only=True)
+    event_type = RetrieveEventTypeSerializer(read_only=True)
+    score = serializers.IntegerField(required=False)
+    achievement_time = serializers.DateTimeField()
