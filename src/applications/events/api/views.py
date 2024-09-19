@@ -1,4 +1,5 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -40,14 +41,25 @@ class EventViewSet(mixins.ListModelMixin,
     filterset_class = EventFilter
 
     def get_queryset(self):
-        self.queryset = self.queryset.filter_visible_for(
+        return super().get_queryset()
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventSerializer(many=True),
+        },
+        tags=[EVENTS_TAG],
+    )
+    @action(detail=False, methods=['get'], url_path='related-events')
+    def related_events(self, request, *args, **kwargs):
+        queryset = self.queryset.filter_visible_for(
             self.request.user,
         ).select_related(
             'speaker',
         ).prefetch_related(
             'managers',
         )
-        return super().get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
     @extend_schema(
         responses={

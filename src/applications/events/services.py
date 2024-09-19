@@ -86,7 +86,6 @@ def create_event_comment(event: Event,
 
 
 def update_event_comment(event_comment: EventComment, actor: User, **kwargs):
-    print(not is_admin(actor), event_comment.user != actor)
     if not is_admin(actor) and event_comment.user != actor:
         raise PermissionDeniedException()
     event_comment.comment = kwargs.get('comment')

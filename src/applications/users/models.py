@@ -41,3 +41,18 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
+
+
+class UserAchievement(models.Model):
+    from applications.events.models import EventType
+    user = models.ForeignKey(
+        to=User,
+        on_delete=models.CASCADE,
+        related_name='achievements',
+    )
+    achievement_type = models.ForeignKey(
+        to=EventType,
+        on_delete=models.CASCADE,
+    )
+    score = models.IntegerField()
+    achievement_time = models.DateField(auto_now=True)
