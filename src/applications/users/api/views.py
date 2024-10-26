@@ -1,5 +1,6 @@
 from rest_framework import mixins, status
 from rest_framework.decorators import action
+
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -7,9 +8,11 @@ from rest_framework.viewsets import GenericViewSet
 from drf_spectacular.utils import extend_schema
 
 from applications.api.exceptions import BaseServiceException, handle_service_exception
-from applications.users.api.serializers import RetrieveUserSerializer, CreateUserSerializer, UpdateUserSerializer, \
-    UpdateUserGroupsSerializer, RetrieveUserAchievementSerializer, CreateUserAchievementSerializer, \
-    UpdateUserAchievementSerializer
+from applications.users.api.serializers import (RetrieveUserSerializer, CreateUserSerializer, UpdateUserSerializer, \
+ \
+                                                UpdateUserGroupsSerializer, RetrieveUserAchievementSerializer,
+                                                CreateUserAchievementSerializer, \
+                                                UpdateUserAchievementSerializer)
 from applications.users.models import User, UserAchievement
 from applications.users.services import create_user, update_user, add_user_groups, delete_user_groups, \
     create_user_achievement, update_user_achievement

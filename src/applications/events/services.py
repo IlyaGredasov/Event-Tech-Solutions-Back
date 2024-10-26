@@ -4,7 +4,6 @@ from applications.events.enums import EventParticipantState
 from applications.events.models import Event, EventParticipant, EventComment
 from applications.users.models import User
 
-
 def create_event_participant(event: Event,
                              user: User) -> EventParticipant:
     if EventParticipant.objects.filter(event=event, user=user).exists():
@@ -31,9 +30,11 @@ def update_event_participant(event_participant: EventParticipant,
         )
         if not can_set_moderated_state:
             raise PermissionDeniedException()
-
     event_participant.state = state
+    if state == EventParticipantState.ARRIVED:
+        event_participant.user.score += 1
     event_participant.save()
+    event_participant.user.save()
     return event_participant
 
 
@@ -75,6 +76,7 @@ def update_event(event: Event, actor: User, **kwargs) -> Event:
     return event
 
 
+
 def create_event_comment(event: Event,
                          actor: User,
                          comment: str) -> EventComment:
@@ -91,3 +93,4 @@ def update_event_comment(event_comment: EventComment, actor: User, **kwargs):
     event_comment.comment = kwargs.get('comment')
     event_comment.save()
     return event_comment
+

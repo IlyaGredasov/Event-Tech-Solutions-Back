@@ -13,7 +13,8 @@ from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
                                                  UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
                                                  CreateEventCommentSerializer, CreateEventSerializer,
-                                                 UpdateEventSerializer, UpdateEventCommentSerializer)
+                                                 UpdateEventSerializer, UpdateEventCommentSerializer,
+                                                 FindEventSerializer)
 from applications.events.models import Event, EventParticipant, EventComment
 from applications.events.services import create_event_participant, update_event_participant, create_event_comment, \
     create_event, update_event, update_event_comment
@@ -58,7 +59,7 @@ class EventViewSet(mixins.ListModelMixin,
         ).prefetch_related(
             'managers',
         )
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
     @extend_schema(
@@ -122,6 +123,19 @@ class EventViewSet(mixins.ListModelMixin,
             data=self.get_serializer(event).data,
             status=status.HTTP_200_OK,
         )
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventSerializer(many=True),
+        },
+        tags=[EVENTS_TAG],
+        request=FindEventSerializer,
+    )
+    @action(detail=False, methods=['post'], url_path='find')
+    def find(self, request, *args, **kwargs):
+        queryset = self.queryset.filter(name__contains=request.POST['search'])
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
 
     @extend_schema(
         responses={

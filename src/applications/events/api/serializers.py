@@ -138,3 +138,7 @@ class CreateEventCommentSerializer(serializers.Serializer):
 
 class UpdateEventCommentSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=255)
+
+
+class FindEventSerializer(serializers.Serializer):
+    search = serializers.CharField(max_length=255)

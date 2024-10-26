@@ -23,6 +23,7 @@ class RetrieveUserSerializer(serializers.Serializer):
     mail = serializers.CharField()
     phone_number = serializers.CharField()
     groups = RetrieveGroupSerializer(many=True, read_only=True)
+    score = serializers.IntegerField()
 
 
 class RetrieveRelatedUserSerializer(serializers.Serializer):
@@ -31,6 +32,7 @@ class RetrieveRelatedUserSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     avatar = serializers.ImageField()
+    score = serializers.IntegerField()
 
 
 class CreateUserSerializer(serializers.Serializer):
@@ -44,6 +46,7 @@ class CreateUserSerializer(serializers.Serializer):
     telegram = serializers.CharField(max_length=255, required=False)
     mail = serializers.CharField(max_length=255, required=False)
     phone_number = serializers.CharField(max_length=255, required=False)
+    score = serializers.IntegerField(required=False)
 
 
 class UpdateUserSerializer(serializers.Serializer):
@@ -57,6 +60,7 @@ class UpdateUserSerializer(serializers.Serializer):
     telegram = serializers.CharField(max_length=255, required=False)
     mail = serializers.CharField(max_length=255, required=False)
     phone_number = serializers.CharField(max_length=255, required=False)
+    score = serializers.IntegerField(required=False)
 
 
 class UpdateUserGroupsSerializer(serializers.Serializer):
@@ -69,7 +73,7 @@ class UpdateUserGroupsSerializer(serializers.Serializer):
 
 class UserNotificationSerializer(serializers.Serializer):
     state = serializers.ChoiceField(choices=NotificationState.choices)
-    time = serializers.DateTimeField()
+    time = serializers.DateField()
     event = serializers.CharField()
     user = serializers.CharField()
     description = serializers.CharField()
@@ -80,7 +84,7 @@ class RetrieveUserAchievementSerializer(serializers.Serializer):
     user = RetrieveRelatedUserSerializer(read_only=True)
     event_type = RetrieveEventTypeSerializer(read_only=True)
     score = serializers.IntegerField(default=0)
-    achievement_time = serializers.DateTimeField()
+    achievement_time = serializers.DateField()
 
 
 class CreateUserAchievementSerializer(serializers.Serializer):
@@ -98,4 +102,4 @@ class UpdateUserAchievementSerializer(serializers.Serializer):
     user = RetrieveRelatedUserSerializer(read_only=True)
     event_type = RetrieveEventTypeSerializer(read_only=True)
     score = serializers.IntegerField(required=False)
-    achievement_time = serializers.DateTimeField()
+    achievement_time = serializers.DateField()

@@ -41,6 +41,9 @@ class User(AbstractUser):
         null=True,
         blank=True
     )
+    score = models.IntegerField(
+        default=0,
+    )
 
 
 class UserAchievement(models.Model):

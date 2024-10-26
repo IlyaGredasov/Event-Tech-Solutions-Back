@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group
 
 from applications.api.exceptions import PermissionDeniedException, BaseServiceException
 from applications.api.permissions import is_admin
+
 from applications.events.models import EventType
 from applications.users.models import User, UserAchievement
 
@@ -24,7 +25,8 @@ def create_user(**kwargs) -> User:
 
 
 def update_user(actor: User, **kwargs) -> User:
-    editable_attrs = ['username', 'first_name', 'last_name', 'job', 'avatar', 'vk', 'telegram', 'mail', 'phone_number']
+    editable_attrs = ['username', 'first_name', 'last_name', 'job', 'avatar', 'vk', 'telegram', 'mail', 'phone_number',
+                      'score']
     for attr in kwargs:
         if attr in editable_attrs:
             setattr(actor, attr, kwargs.get(attr))
