@@ -1,5 +1,4 @@
 from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -11,17 +10,20 @@ from django_filters import rest_framework as filters
 from applications.api.exceptions import BaseServiceException, handle_service_exception
 from applications.api.views import CustomUpdateModelMixin
 from applications.events.api.serializers import (RetrieveEventParticipantSerializer, RetrieveEventSerializer,
-                                                 UpdateEventParticipantSerializer)
-from applications.events.models import Event, EventParticipant
-from applications.events.services import create_event_participant, update_event_participant
+                                                 UpdateEventParticipantSerializer, RetrieveEventCommentSerializer,
+                                                 CreateEventCommentSerializer)
+from applications.events.models import Event, EventParticipant, EventComment
+from applications.events.services import create_event_participant, update_event_participant, create_event_comment
 
 EVENTS_TAG = 'Мероприятия'
 EVENT_PARTICIPANTS_TAG = 'Участники мероприятия'
+EVENT_COMMENT_TAG = 'Комментарии мероприятия'
 
 
 class EventFilter(filters.FilterSet):
     time_start__gte = filters.DateTimeFilter(field_name='time_start', lookup_expr='gte')
     time_start__lte = filters.DateTimeFilter(field_name='time_start', lookup_expr='lte')
+
     class Meta:
         model = Event
         fields = ['type', 'time_start']
@@ -144,4 +146,62 @@ class EventParticipantViewSet(mixins.ListModelMixin,
         return Response(
             data=self.get_serializer(event_participant).data,
             status=status.HTTP_200_OK,
+        )
+
+
+class EventCommentViewSet(mixins.ListModelMixin,
+                          mixins.RetrieveModelMixin,
+                          viewsets.GenericViewSet):
+    serializer_class = RetrieveEventCommentSerializer
+    queryset = EventComment.objects.all()
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        event_pk = kwargs.get('event_pk')
+        if event_pk:
+            self.event = get_object_or_404(Event.objects.all(), pk=event_pk)
+
+    def get_queryset(self):
+        self.queryset = self.queryset.filter(
+            event=self.event,
+        ).select_related(
+            'event',
+        )
+        return super().get_queryset()
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventCommentSerializer,
+        },
+        tags=[EVENT_COMMENT_TAG],
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RetrieveEventCommentSerializer(many=True),
+        },
+        tags=[EVENT_COMMENT_TAG],
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        responses={
+            status.HTTP_201_CREATED: RetrieveEventCommentSerializer(),
+        },
+        tags=[EVENT_COMMENT_TAG],
+        request=CreateEventCommentSerializer,
+    )
+    def create(self, request, *args, **kwargs):
+        serializer = CreateEventCommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            event_comment = create_event_comment(self.event, request.user, **serializer.validated_data)
+        except BaseServiceException as e:
+            return handle_service_exception(e)
+        return Response(
+            data=self.get_serializer(event_comment).data,
+            status=status.HTTP_201_CREATED,
         )

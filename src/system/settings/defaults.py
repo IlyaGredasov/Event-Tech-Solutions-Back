@@ -13,9 +13,9 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from django.contrib.staticfiles.handlers import StaticFilesHandler
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "system.settings"
 
 SECRET_KEY = os.environ['SECRET_KEY']
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_spectacular',
     'corsheaders',
+    'phonenumber_field',
 
     'applications.api.apps.ApiConfig',
     'applications.users.apps.UsersConfig',
